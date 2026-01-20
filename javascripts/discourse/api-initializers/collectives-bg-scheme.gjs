@@ -65,12 +65,6 @@ function setOverrideDark() {
   applyOverride("dark");
 }
 
-function setOverrideAuto() {
-  if (!keyValueStoreService) return;
-  keyValueStoreService.removeItem(COLOR_SCHEME_OVERRIDE_KEY);
-  applyOverride(null);
-}
-
 export default apiInitializer("1.8.0", (api) => {
   console.log("Initialiser is loaded");
 
@@ -90,7 +84,7 @@ export default apiInitializer("1.8.0", (api) => {
   api.headerIcons.add(
     "collectives-theme-controls",
     <template>
-      <DMenu class="icon btn-flat" @icon="address-book" @title="Theme controls">
+      <DMenu class="icon btn-flat" @icon="adjust" @title="Theme controls">
         <DButton @translatedLabel="Sunrise"   @action={{setSunrise}} />
         <DButton @translatedLabel="Day"       @action={{setDay}} />
         <DButton @translatedLabel="Sunset"    @action={{setSunset}} />
@@ -101,7 +95,6 @@ export default apiInitializer("1.8.0", (api) => {
 
         <DButton @translatedLabel="Light" @icon="sun"  @action={{setOverrideLight}} />
         <DButton @translatedLabel="Dark"  @icon="moon" @action={{setOverrideDark}} />
-        <DButton @translatedLabel="Auto"  @icon="adjust" @action={{setOverrideAuto}} />
       </DMenu>
     </template>,
     { before: "search" }
