@@ -33,12 +33,12 @@ function setNight()     { setScheme("night"); }
 function setCoral()     { setScheme("coral"); }
 function setAstronaut() { setScheme("astronaut"); }
 
-
+// Services (assigned in initializer)
 let keyValueStoreService = null;
 let sessionService = null;
 
 function getOSMode() {
-  return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ? "dark" : "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 function getStoredOverride() {
@@ -50,10 +50,13 @@ function getStoredOverride() {
 }
 
 function toggleColorScheme() {
-  if (!keyValueStoreService) return;
+  if (!keyValueStoreService) {
+    console.warn("keyValueStore service missing; cannot toggle color scheme");
+    return;
+  }
 
   const osMode = getOSMode();
-  const current = getStoredOverride();
+  const current = getStoredOverride(); // "light" | "dark" | null
 
   if (osMode === "light") {
     if (current === "dark") {
@@ -81,23 +84,23 @@ function toggleColorScheme() {
 export default apiInitializer("1.8.0", (api) => {
   console.log("Initialiser is loaded");
 
-  const container = api.container;
+  // Prefer the official container accessor if present
+  const container =
+    api.container ||
+    api._lookupContainer?.();
 
-  keyValueStoreService =
-    container.lookup?.("service:key-value-store") ||
-    container.lookup?.("service:keyValueStore") ||
-    null;
-
-  sessionService =
-    container.lookup?.("service:session") ||
-    container.lookup?.("session:main") ||
-    null;
+  if (!container?.lookup) {
+    console.warn("No container lookup available; light/dark toggle may not work");
+  } else {
+    keyValueStoreService = container.lookup("service:key-value-store");
+    sessionService = container.lookup("service:session");
+  }
 
   setScheme(getScheme());
   api.onPageChange(() => setScheme(getScheme()));
 
   api.headerIcons.add(
-    "collectives-bg-scheme",
+    "collectives-theme-controls",
     <template>
       <DMenu class="icon btn-flat" @icon="address-book" @title="Theme controls">
         <DButton @translatedLabel="Sunrise"   @action={{setSunrise}} />
@@ -108,10 +111,8 @@ export default apiInitializer("1.8.0", (api) => {
         <DButton @translatedLabel="Coral"     @action={{setCoral}} />
         <DButton @translatedLabel="Astronaut" @action={{setAstronaut}} />
 
-        <span class="menu-divider"></span>
-
         <DButton
-          @translatedLabel="Light/Dark"
+          @translatedLabel="Toggle Light/Dark"
           @icon="adjust"
           @action={{toggleColorScheme}}
         />
