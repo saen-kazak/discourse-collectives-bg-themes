@@ -7,97 +7,85 @@ import {
   colorSchemeOverride,
 } from "../lib/color-scheme-override";
 
-const KEY = "collectives_bg_scheme";
-const DEFAULT = "day";
 
-function getScheme() {
+const BG_KEY = "collectives_bg_scheme";
+const BG_DEFAULT = "day";
+
+function getBgScheme() {
   try {
-    return localStorage.getItem(KEY) || DEFAULT;
+    return localStorage.getItem(BG_KEY) || BG_DEFAULT;
   } catch {
-    return DEFAULT;
+    return BG_DEFAULT;
   }
 }
 
-function setScheme(value) {
+function setBgScheme(value) {
   document.documentElement.dataset.bgScheme = value;
   try {
-    localStorage.setItem(KEY, value);
+    localStorage.setItem(BG_KEY, value);
   } catch {}
 }
 
-function setSunrise()   { setScheme("sunrise"); }
-function setDay()       { setScheme("day"); }
-function setSunset()    { setScheme("sunset"); }
-function setGreen()     { setScheme("green"); }
-function setNight()     { setScheme("night"); }
-function setCoral()     { setScheme("coral"); }
-function setAstronaut() { setScheme("astronaut"); }
+function setSunrise()   { setBgScheme("sunrise"); }
+function setDay()       { setBgScheme("day"); }
+function setSunset()    { setBgScheme("sunset"); }
+function setGreen()     { setBgScheme("green"); }
+function setNight()     { setBgScheme("night"); }
+function setCoral()     { setBgScheme("coral"); }
+function setAstronaut() { setBgScheme("astronaut"); }
 
-// Services (assigned in initializer)
+
 let keyValueStoreService = null;
 let sessionService = null;
 
-function getOSMode() {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-function getStoredOverride() {
+function readOverride() {
   try {
-    return keyValueStoreService?.getItem(COLOR_SCHEME_OVERRIDE_KEY) || null;
+    return keyValueStoreService?.getItem(COLOR_SCHEME_OVERRIDE_KEY) || null; // "light" | "dark" | null
   } catch {
     return null;
   }
 }
 
-function toggleColorScheme() {
-  if (!keyValueStoreService) {
-    console.warn("keyValueStore service missing; cannot toggle color scheme");
-    return;
-  }
-
-  const osMode = getOSMode();
-  const current = getStoredOverride(); // "light" | "dark" | null
-
-  if (osMode === "light") {
-    if (current === "dark") {
-      keyValueStoreService.removeItem(COLOR_SCHEME_OVERRIDE_KEY);
-    } else {
-      keyValueStoreService.setItem(COLOR_SCHEME_OVERRIDE_KEY, "dark");
-    }
-  } else {
-    if (current !== "light") {
-      keyValueStoreService.setItem(COLOR_SCHEME_OVERRIDE_KEY, "light");
-    } else {
-      keyValueStoreService.removeItem(COLOR_SCHEME_OVERRIDE_KEY);
-    }
-  }
-
-  const newOverride = getStoredOverride();
-
+function applyOverride(override) {
   if (sessionService?.set) {
-    sessionService.set("colorSchemeOverride", newOverride);
+    sessionService.set("colorSchemeOverride", override);
   }
+  colorSchemeOverride(override);
+}
 
-  colorSchemeOverride(newOverride);
+function setOverrideLight() {
+  if (!keyValueStoreService) return;
+  keyValueStoreService.setItem(COLOR_SCHEME_OVERRIDE_KEY, "light");
+  applyOverride("light");
+}
+
+function setOverrideDark() {
+  if (!keyValueStoreService) return;
+  keyValueStoreService.setItem(COLOR_SCHEME_OVERRIDE_KEY, "dark");
+  applyOverride("dark");
+}
+
+function setOverrideAuto() {
+  if (!keyValueStoreService) return;
+  keyValueStoreService.removeItem(COLOR_SCHEME_OVERRIDE_KEY);
+  applyOverride(null);
 }
 
 export default apiInitializer("1.8.0", (api) => {
   console.log("Initialiser is loaded");
 
-  // Prefer the official container accessor if present
-  const container =
-    api.container ||
-    api._lookupContainer?.();
+  const container = api.container || api._lookupContainer?.();
 
-  if (!container?.lookup) {
-    console.warn("No container lookup available; light/dark toggle may not work");
-  } else {
+  if (container?.lookup) {
     keyValueStoreService = container.lookup("service:key-value-store");
     sessionService = container.lookup("service:session");
   }
 
-  setScheme(getScheme());
-  api.onPageChange(() => setScheme(getScheme()));
+
+  setBgScheme(getBgScheme());
+  api.onPageChange(() => setBgScheme(getBgScheme()));
+
+  applyOverride(readOverride());
 
   api.headerIcons.add(
     "collectives-theme-controls",
@@ -111,11 +99,9 @@ export default apiInitializer("1.8.0", (api) => {
         <DButton @translatedLabel="Coral"     @action={{setCoral}} />
         <DButton @translatedLabel="Astronaut" @action={{setAstronaut}} />
 
-        <DButton
-          @translatedLabel="Toggle Light/Dark"
-          @icon="adjust"
-          @action={{toggleColorScheme}}
-        />
+        <DButton @translatedLabel="Light" @icon="sun"  @action={{setOverrideLight}} />
+        <DButton @translatedLabel="Dark"  @icon="moon" @action={{setOverrideDark}} />
+        <DButton @translatedLabel="Auto"  @icon="adjust" @action={{setOverrideAuto}} />
       </DMenu>
     </template>,
     { before: "search" }
