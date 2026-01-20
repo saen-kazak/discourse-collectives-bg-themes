@@ -91,16 +91,16 @@ export default apiInitializer("1.8.0", (api) => {
     "collectives-theme-controls",
     <template>
       <DMenu class="icon btn-flat" @icon="circle-half-stroke" @title="Theme controls">
-        <DButton @translatedLabel="Sunrise" @icon="sunrise"  @action={{setSunrise}} />
+        <DButton @translatedLabel="Light" @icon="sun"  @action={{setOverrideLight}} />
+        <DButton @translatedLabel="Dark"  @icon="moon" @action={{setOverrideDark}} />
+        <DButton @translatedLabel="Sunrise" @action={{setSunrise}} />
         <DButton @translatedLabel="Day"       @action={{setDay}} />
         <DButton @translatedLabel="Sunset"    @action={{setSunset}} />
-        <DButton @translatedLabel="Green"     @action={{setGreen}} />
         <DButton @translatedLabel="Night"     @action={{setNight}} />
+		<DButton @translatedLabel="Green"     @action={{setGreen}} />
         <DButton @translatedLabel="Coral"     @action={{setCoral}} />
         <DButton @translatedLabel="Astronaut" @action={{setAstronaut}} />
 
-        <DButton @translatedLabel="Light" @icon="sun"  @action={{setOverrideLight}} />
-        <DButton @translatedLabel="Dark"  @icon="moon" @action={{setOverrideDark}} />
       </DMenu>
     </template>,
     { before: "search" }
