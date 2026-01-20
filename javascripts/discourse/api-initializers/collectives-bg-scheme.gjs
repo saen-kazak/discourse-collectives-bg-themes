@@ -91,15 +91,15 @@ export default apiInitializer("1.8.0", (api) => {
     "collectives-theme-controls",
     <template>
       <DMenu class="icon btn-flat" @icon="circle-half-stroke" @title="Theme controls">
-        <DButton @translatedLabel="Light" @icon="sun"  @action={{setOverrideLight}} />
-        <DButton @translatedLabel="Dark"  @icon="moon" @action={{setOverrideDark}} />
-        <DButton @translatedLabel="Sunrise" @action={{setSunrise}} />
-        <DButton @translatedLabel="Day"       @action={{setDay}} />
-        <DButton @translatedLabel="Sunset"    @action={{setSunset}} />
-        <DButton @translatedLabel="Night"     @action={{setNight}} />
-		<DButton @translatedLabel="Green"     @action={{setGreen}} />
-        <DButton @translatedLabel="Coral"     @action={{setCoral}} />
-        <DButton @translatedLabel="Astronaut" @action={{setAstronaut}} />
+        <DButton class="scheme-icon" @translatedLabel="Light" @icon="sun"  @action={{setOverrideLight}} />
+        <DButton class="scheme-icon" @translatedLabel="Dark"  @icon="moon" @action={{setOverrideDark}} />
+        <DButton class="scheme-icon" @translatedLabel="Sunrise" @action={{setSunrise}} />
+        <DButton class="scheme-icon" @translatedLabel="Day"       @action={{setDay}} />
+        <DButton class="scheme-icon"@translatedLabel="Sunset"    @action={{setSunset}} />
+        <DButton class="scheme-icon"@translatedLabel="Night"     @action={{setNight}} />
+		<DButton class="scheme-icon" @translatedLabel="Green"     @action={{setGreen}} />
+        <DButton class="scheme-icon" @translatedLabel="Coral"     @action={{setCoral}} />
+        <DButton class="scheme-icon" @translatedLabel="Astronaut" @action={{setAstronaut}} />
 
       </DMenu>
     </template>,
