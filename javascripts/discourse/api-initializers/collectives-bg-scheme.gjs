@@ -2,6 +2,11 @@ import { apiInitializer } from "discourse/lib/api";
 import DMenu from "float-kit/components/d-menu";
 import DButton from "discourse/components/d-button";
 
+import {
+  COLOR_SCHEME_OVERRIDE_KEY,
+  colorSchemeOverride,
+} from "../lib/color-scheme-override";
+
 const KEY = "collectives_bg_scheme";
 const DEFAULT = "day";
 
@@ -28,8 +33,65 @@ function setNight()     { setScheme("night"); }
 function setCoral()     { setScheme("coral"); }
 function setAstronaut() { setScheme("astronaut"); }
 
+
+let keyValueStoreService = null;
+let sessionService = null;
+
+function getOSMode() {
+  return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ? "dark" : "light";
+}
+
+function getStoredOverride() {
+  try {
+    return keyValueStoreService?.getItem(COLOR_SCHEME_OVERRIDE_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+
+function toggleColorScheme() {
+  if (!keyValueStoreService) return;
+
+  const osMode = getOSMode();
+  const current = getStoredOverride();
+
+  if (osMode === "light") {
+    if (current === "dark") {
+      keyValueStoreService.removeItem(COLOR_SCHEME_OVERRIDE_KEY);
+    } else {
+      keyValueStoreService.setItem(COLOR_SCHEME_OVERRIDE_KEY, "dark");
+    }
+  } else {
+    if (current !== "light") {
+      keyValueStoreService.setItem(COLOR_SCHEME_OVERRIDE_KEY, "light");
+    } else {
+      keyValueStoreService.removeItem(COLOR_SCHEME_OVERRIDE_KEY);
+    }
+  }
+
+  const newOverride = getStoredOverride();
+
+  if (sessionService?.set) {
+    sessionService.set("colorSchemeOverride", newOverride);
+  }
+
+  colorSchemeOverride(newOverride);
+}
+
 export default apiInitializer("1.8.0", (api) => {
   console.log("Initialiser is loaded");
+
+  const container = api.container;
+
+  keyValueStoreService =
+    container.lookup?.("service:key-value-store") ||
+    container.lookup?.("service:keyValueStore") ||
+    null;
+
+  sessionService =
+    container.lookup?.("service:session") ||
+    container.lookup?.("session:main") ||
+    null;
 
   setScheme(getScheme());
   api.onPageChange(() => setScheme(getScheme()));
@@ -37,7 +99,7 @@ export default apiInitializer("1.8.0", (api) => {
   api.headerIcons.add(
     "collectives-bg-scheme",
     <template>
-      <DMenu class="icon btn-flat" @icon="address-book" @title="Background scheme">
+      <DMenu class="icon btn-flat" @icon="address-book" @title="Theme controls">
         <DButton @translatedLabel="Sunrise"   @action={{setSunrise}} />
         <DButton @translatedLabel="Day"       @action={{setDay}} />
         <DButton @translatedLabel="Sunset"    @action={{setSunset}} />
@@ -45,6 +107,14 @@ export default apiInitializer("1.8.0", (api) => {
         <DButton @translatedLabel="Night"     @action={{setNight}} />
         <DButton @translatedLabel="Coral"     @action={{setCoral}} />
         <DButton @translatedLabel="Astronaut" @action={{setAstronaut}} />
+
+        <span class="menu-divider"></span>
+
+        <DButton
+          @translatedLabel="Light/Dark"
+          @icon="adjust"
+          @action={{toggleColorScheme}}
+        />
       </DMenu>
     </template>,
     { before: "search" }
