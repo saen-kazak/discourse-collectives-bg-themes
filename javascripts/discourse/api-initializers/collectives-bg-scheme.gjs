@@ -104,6 +104,6 @@ export default apiInitializer("1.8.0", (api) => {
 		</div>
       </DMenu>
     </template>,
-    { before: "search" }
+    { before: "hamburger" }
   );
 });
