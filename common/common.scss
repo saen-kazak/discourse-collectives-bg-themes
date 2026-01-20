@@ -9,8 +9,14 @@
 	flex-direction: column;
 }
 
-.scheme-icon {
+.scheme-icons .scheme-icon {
 
 	border-radius: 0 !important;
+	width:100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+	background: var(--secondary);
 
 }
