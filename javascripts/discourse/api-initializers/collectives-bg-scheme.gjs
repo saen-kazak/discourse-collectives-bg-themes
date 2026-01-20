@@ -91,7 +91,7 @@ export default apiInitializer("1.8.0", (api) => {
     "collectives-theme-controls",
     <template>
       <DMenu class="icon btn-flat" @icon="circle-half-stroke" @title="Theme controls">
-        <DButton @translatedLabel="Sunrise"   @action={{setSunrise}} />
+        <DButton @translatedLabel="Sunrise" @icon="sunrise"  @action={{setSunrise}} />
         <DButton @translatedLabel="Day"       @action={{setDay}} />
         <DButton @translatedLabel="Sunset"    @action={{setSunset}} />
         <DButton @translatedLabel="Green"     @action={{setGreen}} />
