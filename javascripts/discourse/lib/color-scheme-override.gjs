@@ -6,57 +6,78 @@ export function colorSchemeOverride(type) {
     document.querySelector("link.dark-scheme") ||
     document.querySelector("link#cs-preview-dark");
 
+  // If neither exists, nothing to do
   if (!lightScheme && !darkScheme) {
     return;
   }
 
+  // Helper: stash original media once
+  const stash = (el) => {
+    if (!el) return;
+    if (el.origMedia == null) el.origMedia = el.media;
+  };
+
+  // Helper: restore and clean up
+  const restore = (el) => {
+    if (!el) return;
+    if (el.origMedia != null) {
+      el.media = el.origMedia;
+      delete el.origMedia;
+    }
+  };
+
   switch (type) {
     case "dark":
-      lightScheme.origMedia = lightScheme.media;
-      lightScheme.media = "none";
-      darkScheme.origMedia = darkScheme.media;
-      darkScheme.media = "all";
+      stash(lightScheme);
+      if (lightScheme) lightScheme.media = "none";
+
+      stash(darkScheme);
+      if (darkScheme) darkScheme.media = "all";
       break;
+
     case "light":
-      lightScheme.origMedia = lightScheme.media;
-      lightScheme.media = "all";
-      darkScheme.origMedia = darkScheme.media;
-      darkScheme.media = "none";
+      stash(lightScheme);
+      if (lightScheme) lightScheme.media = "all";
+
+      stash(darkScheme);
+      if (darkScheme) darkScheme.media = "none";
       break;
+
     default:
-      if (lightScheme.origMedia) {
-        lightScheme.media = lightScheme.origMedia;
-        lightScheme.removeAttribute("origMedia");
-      }
-      if (darkScheme.origMedia) {
-        darkScheme.media = darkScheme.origMedia;
-        darkScheme.removeAttribute("origMedia");
-      }
+      restore(lightScheme);
+      restore(darkScheme);
       break;
   }
+
   changeHomeLogo(type);
 }
 
 export function changeHomeLogo(type) {
   const logoDarkSrc = document.querySelector(".title picture source");
+  if (!logoDarkSrc) return;
 
-  if (!logoDarkSrc) {
-    return;
-  }
+  const stash = () => {
+    if (logoDarkSrc.origMedia == null) logoDarkSrc.origMedia = logoDarkSrc.media;
+  };
+
+  const restore = () => {
+    if (logoDarkSrc.origMedia != null) {
+      logoDarkSrc.media = logoDarkSrc.origMedia;
+      delete logoDarkSrc.origMedia;
+    }
+  };
 
   switch (type) {
     case "dark":
-      logoDarkSrc.origMedia = logoDarkSrc.media;
+      stash();
       logoDarkSrc.media = "all";
       break;
     case "light":
-      logoDarkSrc.origMedia = logoDarkSrc.media;
+      stash();
       logoDarkSrc.media = "none";
       break;
     default:
-      if (logoDarkSrc.origMedia) {
-        logoDarkSrc.media = logoDarkSrc.origMedia;
-      }
+      restore();
       break;
   }
 }
